@@ -1,37 +1,59 @@
 <!doctype html>
-<html lang="es"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Gracias — Box Médico por Hora</title><style>
-:root{--bg:#0b1020;--card:#111633;--muted:#98a3cf;--text:#e9edff;--accent:#7cc4ff;--ok:#59d18c}
-*{box-sizing:border-box}
-body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial;background:linear-gradient(180deg,#0b1020,#0b1020 30%,#0f1730);color:var(--text)}
+<html lang="es">
+<head>
+  <meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Gracias — Box Médico por Hora</title>
+  <style>
+:root{--bg:#0b1020;--card:#111633;--muted:#98a3cf;--text:#e9edff;--accent:#7cc4ff}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Arial;background:linear-gradient(180deg,#0b1020,#0b1020 30%,#0f1730);color:var(--text)}
 header{padding:28px 16px 18px;text-align:center;border-bottom:1px solid rgba(124,196,255,.15)}
-.brand{display:flex;gap:10px;align-items:center;justify-content:center}
-.brand img{height:40px}.tag{font-size:12px;border:1px dashed rgba(124,196,255,.35);padding:2px 6px;border-radius:8px;color:#cbd7ff}
-h1{margin:10px 0 6px;font-size:clamp(22px,3.8vw,36px)}.sub{margin:4px 0 0;color:#98a3cf}
-.container{max-width:980px;margin:24px auto 60px;padding:0 16px}
-.card{background:linear-gradient(180deg,#101634,#0d1330); border:1px solid rgba(124,196,255,.22); border-radius:16px; padding:20px; box-shadow:0 10px 30px rgba(0,0,0,.25)}
-.grid{display:grid;gap:16px}
-@media(min-width:880px){.grid-cols-2{grid-template-columns:1fr 1fr}}
-label{display:block;font-size:14px;color:#cfd6ff;margin:10px 0 6px}
-input[type=text],input[type=email],input[type=tel],select{width:100%;padding:12px 14px;border-radius:10px;border:1px solid rgba(124,196,255,.25);background:#0b1128;color:var(--text);outline:none}
-.row{display:flex;flex-wrap:wrap;gap:10px}
-.chip{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;border:1px solid rgba(124,196,255,.25);background:#0b1128;cursor:pointer}
-.chip input{accent-color:#5fb7ff}
-.btns{display:flex;gap:10px;align-items:center;margin-top:14px}
-button,.btn{border:none;cursor:pointer;padding:12px 16px;border-radius:12px;background:linear-gradient(180deg,#52b4ff,#2a91ff);color:#fff;font-weight:700}
-button.secondary{background:transparent;border:1px solid rgba(124,196,255,.35)}
-.success{display:none;margin-top:14px;padding:12px;border:1px solid rgba(89,209,140,.5);background:rgba(89,209,140,.08);color:#caffdf;border-radius:12px}
-.footer{margin-top:22px;font-size:12px;color:#98a3cf}
-a{color:#9cd3ff}
-.center{text-align:center}
-main.narrow{max-width:780px;margin:24px auto 60px;padding:0 16px}
-</style></head>
+.brand{display:flex;gap:10px;align-items:center;justify-content:center}.brand img{height:40px}
+.container{max-width:780px;margin:24px auto 60px;padding:0 16px}
+.card{background:linear-gradient(180deg,#101634,#0d1330);border:1px solid rgba(124,196,255,.22);border-radius:16px;padding:20px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.btn{display:inline-flex;gap:8px;padding:12px 16px;border-radius:12px;background:linear-gradient(180deg,#52b4ff,#2a91ff);color:#fff;text-decoration:none;font-weight:700}
+  </style>
+</head>
 <body>
-<header><div class="brand"><img src="assets/logo.svg" alt="Logo"><div><h1>¡Gracias!</h1><p class="sub">Recibimos tu registro</p></div></div></header>
-<main class="narrow">
+<header>
+  <div class="brand">
+    <img src="assets/logo.svg" alt="Logo">
+    <div>
+      <h1>¡Gracias!</h1>
+      <p class="sub">Recibimos tu registro</p>
+    </div>
+  </div>
+</header>
+<main class="container">
   <div class="card">
     <p>Te contactaremos cuando habilitemos cupos en las comunas y franjas que nos indicaste.</p>
-    <p>Si necesitas hablar ahora, escríbenos directo a WhatsApp: <a href="https://wa.me/56998631064" target="_blank">+56998631064</a>.</p>
+    <p>Si necesitas hablar ahora, escríbenos directo a WhatsApp:
+      <a href="https://wa.me/56998631064" target="_blank">+56998631064</a>.
+    </p>
     <p>Mientras tanto, puedes cerrar esta pestaña o volver a la <a href="index.html">página de registro</a>.</p>
+    <hr style="border:0;border-top:1px solid rgba(124,196,255,.25);margin:14px 0">
+    <p><strong>Descarga del CSV</strong> (por si el navegador no lo bajó automáticamente):</p>
+    <a class="btn" id="btnDescargaGracias" download="lead.csv">Descargar CSV de respaldo</a>
+    <p style="color:#98a3cf;font-size:12px;margin-top:10px">Si no se descarga, revisa bloqueo de ventanas emergentes o prueba en modo incógnito.</p>
   </div>
-</main></body></html>
+</main>
+<script>
+(function(){
+  const params = new URLSearchParams(location.search);
+  const auto = params.get('dl') === '1';
+  try {
+    const csv = sessionStorage.getItem('last_csv');
+    if(csv){
+      const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+      const url = URL.createObjectURL(blob);
+      const a = document.getElementById('btnDescargaGracias');
+      a.href = url;
+      if(auto){ a.click(); } // autodisparo de respaldo
+    }
+  } catch(e){
+    // si no hay sessionStorage, dejamos solo el botón visible
+  }
+})();
+</script>
+</body>
+</html>
+
