@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="220" height="40" viewBox="0 0 220 40">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="#52b4ff"/><stop offset="100%" stop-color="#2a91ff"/>
+  </linearGradient></defs>
+  <rect rx="8" width="220" height="40" fill="#0b1128" stroke="#5fb7ff" opacity="0.8"/>
+  <g transform="translate(10,8)"><path d="M0 17h6l2-6 2 12 2-7 2 1 2-5 2 5h6"
+     stroke="url(#g)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>
+  <text x="60" y="25" font-family="Inter,Segoe UI,Arial" font-size="16" fill="#e9edff">Box Médico por Hora</text></svg>
