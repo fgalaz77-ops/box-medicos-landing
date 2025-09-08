@@ -37,7 +37,7 @@ button.secondary{background:transparent;border:1px solid rgba(124,196,255,.35)}
 a{color:#9cd3ff}
 .center{text-align:center}
 main.narrow{max-width:780px;margin:24px auto 60px;padding:0 16px}
-</style>
+  </style>
 </head>
 <body>
   <header>
@@ -58,26 +58,13 @@ main.narrow{max-width:780px;margin:24px auto 60px;padding:0 16px}
           <label for="especialidad">Especialidad</label>
           <select id="especialidad" required>
             <option value="">Selecciona…</option>
-            <option>Dermatología</option>
-            <option>Ginecología</option>
-            <option>Pediatría</option>
-            <option>Medicina familiar/general</option>
-            <option>Psiquiatría</option>
-            <option>Endocrinología</option>
-            <option>Cardiología (consulta)</option>
-            <option>Reumatología</option>
-            <option>Alergología</option>
-            <option>Otorrinolaringología</option>
-            <option>Neurología (consulta)</option>
-            <option>Traumatología (consulta)</option>
-            <option>Medicina del trabajo</option>
-            <option>Nutrición</option>
-            <option>Psicología</option>
-            <option>Estética médica</option>
-            <option>Urología (consulta)</option>
-            <option>Gastroenterología (consulta)</option>
-            <option>Oftalmología</option>
-            <option>Otra</option>
+            <option>Dermatología</option><option>Ginecología</option><option>Pediatría</option>
+            <option>Medicina familiar/general</option><option>Psiquiatría</option><option>Endocrinología</option>
+            <option>Cardiología (consulta)</option><option>Reumatología</option><option>Alergología</option>
+            <option>Otorrinolaringología</option><option>Neurología (consulta)</option><option>Traumatología (consulta)</option>
+            <option>Medicina del trabajo</option><option>Nutrición</option><option>Psicología</option>
+            <option>Estética médica</option><option>Urología (consulta)</option><option>Gastroenterología (consulta)</option>
+            <option>Oftalmología</option><option>Otra</option>
           </select>
 
           <label>Comunas de interés (elige 1–2)</label>
@@ -138,12 +125,13 @@ main.narrow{max-width:780px;margin:24px auto 60px;padding:0 16px}
             <button class="secondary" id="btnWhatsApp" type="button">Enviar por WhatsApp</button>
             <a class="btn" id="btnDescargarCSV" download style="display:none">Descargar CSV</a>
           </div>
-          <div class="success" id="successBox">¡Gracias! Tu registro fue capturado. Redirigiendo a la página de gracias…</div>
+          <div class="success" id="successBox">¡Gracias! Generando CSV y redirigiendo a la página de gracias…</div>
           <p class="footer">Campos ocultos: utm_source, utm_medium, utm_campaign, utm_content (se capturan automáticamente si vienen en la URL).</p>
         </form>
       </section>
     </div>
   </main>
+
   <script>
     const WHATSAPP_PHONE = "56998631064";
     const $=(q,ctx=document)=>ctx.querySelector(q); const $$=(q,ctx=document)=>Array.from(ctx.querySelectorAll(q));
@@ -157,9 +145,9 @@ main.narrow{max-width:780px;margin:24px auto 60px;padding:0 16px}
       const ts=new Date().toISOString();
       const especialidad=$('#especialidad').value;
       const comunas=pickComunas();
-      const franjas=$$('input[name=\"franjas\"]:checked').map(i=>i.value);
-      const modalidad=($('input[name=\"modalidad\"]:checked')||{}).value||'';
-      const reqs=$$('input[name=\"req\"]:checked').map(i=>i.value);
+      const franjas=$$('input[name="franjas"]:checked').map(i=>i.value);
+      const modalidad=($('input[name="modalidad"]:checked')||{}).value||'';
+      const reqs=$$('input[name="req"]:checked').map(i=>i.value);
       if($('#reqOtro').value.trim()) reqs.push($('#reqOtro').value.trim());
       return {
         timestamp:ts,especialidad,comunas,
@@ -172,7 +160,7 @@ main.narrow{max-width:780px;margin:24px auto 60px;padding:0 16px}
       };
     }
 
-    // Submit -> download CSV + redirect
+    // Submit -> descarga CSV + redirige; guarda copia en sessionStorage para fallback
     $('#leadForm').addEventListener('submit', (e)=>{
       e.preventDefault();
       if(!$('#especialidad').value){ alert('Selecciona tu especialidad'); return; }
@@ -183,12 +171,18 @@ main.narrow{max-width:780px;margin:24px auto 60px;padding:0 16px}
       const header = ['Timestamp','Especialidad','Comuna principal','Comuna secundaria','AM','Mediodía','PM','Sábado','Modalidad','Requisitos','Contacto','UTM_source','UTM_medium','UTM_campaign','UTM_content'];
       const row = [p.timestamp,p.especialidad,principal,secundaria,p.franja_AM,p.franja_Mediodia,p.franja_PM,p.franja_Sabado,p.modalidad,p.requisitos,contacto,p.utm_source,p.utm_medium,p.utm_campaign,p.utm_content];
       const csv = toCSVRow(header)+toCSVRow(row);
+
+      try { sessionStorage.setItem('last_csv', csv); } catch(_) {}
+
       const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
       const url = URL.createObjectURL(blob);
       const a = $('#btnDescargarCSV');
       a.href = url; a.download = `lead_${Date.now()}.csv`; a.style.display = 'inline-flex';
+      a.click(); // dispara descarga
       $('#successBox').style.display = 'block';
-      setTimeout(()=>{ location.href = 'gracias.html'; }, 1200);
+
+      setTimeout(()=>{ location.href = 'gracias.html?dl=1'; }, 1200);
+
       window.dataLayer = window.dataLayer || [];
       window.dataLayer.push({event:'lead_submit', especialidad:p.especialidad, comuna_principal:principal});
     });
@@ -198,8 +192,15 @@ main.narrow{max-width:780px;margin:24px auto 60px;padding:0 16px}
       const p = buildPayload();
       if(!p.especialidad){ alert('Selecciona tu especialidad'); return; }
       const principal = p.comunas[0]||'(sin comuna)';
-      const msg = encodeURIComponent(`Hola, soy ${p.nombre||'(sin nombre)'} — ${p.especialidad}.\nComunas: ${p.comunas.join(', ')||principal}.\nFranjas: ${['AM',p.franja_Mediodia?'Mediodía':'',p.franja_PM?'PM':'',p.franja_Sabado?'Sábado':''].filter(Boolean).join(', ')}.\nModalidad: ${p.modalidad||'(no indica)'}.\nRequisitos: ${p.requisitos||'(ninguno)'}\nTarifa referencial: ${p.tarifa||'(s/i)'}\nContacto: ${p.email}${p.whatsapp?(' / '+p.whatsapp):''}`);
-      const phone = "56998631064".trim();
+      const txt = `Hola, soy ${p.nombre||'(sin nombre)'} — ${p.especialidad}.
+Comunas: ${p.comunas.join(', ')||principal}.
+Franjas: ${['AM',p.franja_Mediodia?'Mediodía':'',p.franja_PM?'PM':'',p.franja_Sabado?'Sábado':''].filter(Boolean).join(', ')}.
+Modalidad: ${p.modalidad||'(no indica)'}.
+Requisitos: ${p.requisitos||'(ninguno)'}
+Tarifa referencial: ${p.tarifa||'(s/i)'}
+Contacto: ${p.email}${p.whatsapp?(' / '+p.whatsapp):''}`;
+      const msg = encodeURIComponent(txt);
+      const phone = "56998631064";
       const wa = phone ? `https://wa.me/${phone}?text=${msg}` : `https://wa.me/?text=${msg}`;
       window.open(wa, '_blank');
     });
