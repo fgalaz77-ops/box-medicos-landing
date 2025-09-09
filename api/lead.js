@@ -50,6 +50,7 @@ module.exports = async (req, res) => {
              <p>Recibimos tu registro${comunas?.length?` en ${list(comunas)}`:''}. Te contactaremos pronto.</p>
              <p>Si necesitas hablar ahora: WhatsApp +56 9 9863 1064.</p>
              <p>— Equipo Box Médico por Hora</p>`
+      reply_to: 'oficina@isalar.cl'    //
     });
   }
 
