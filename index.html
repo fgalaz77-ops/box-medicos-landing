@@ -166,6 +166,14 @@ main.narrow{max-width:780px;margin:24px auto 60px;padding:0 16px}
       if(!$('#especialidad').value){ alert('Selecciona tu especialidad'); return; }
       if(!$('#privacy').checked){ alert('Debes aceptar el aviso de privacidad'); return; }
       const p = buildPayload();
+      // Enviar los datos al backend de Vercel (Resend)
+try {
+  fetch("/api/lead", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(p)
+  });
+} catch (e) {}
       const principal = p.comunas[0]||''; const secundaria = p.comunas[1]||'';
       const contacto = [p.nombre,p.whatsapp,p.email].filter(Boolean).join(' | ');
       const header = ['Timestamp','Especialidad','Comuna principal','Comuna secundaria','AM','Mediodía','PM','Sábado','Modalidad','Requisitos','Contacto','UTM_source','UTM_medium','UTM_campaign','UTM_content'];
